@@ -47,7 +47,7 @@ int main() {
     }
 
     amqp_bytes_t queue = amqp_cstring_bytes("test_queue");
-    amqp_queue_declare(conn, 1, queue, 0, 0, 0, 1, amqp_empty_table);
+    amqp_queue_declare(conn, 1, queue, 0, 0, 0, 0, amqp_empty_table);
     for (int i = 0; i < 10; i++) {
         amqp_basic_publish(
             conn, 
@@ -60,7 +60,7 @@ int main() {
             amqp_cstring_bytes("test message")
         );
         printf("Sended %d message\n", i);
-        sleep(2);
+        // sleep(1);
     }
     amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS);
     amqp_connection_close(conn, AMQP_REPLY_SUCCESS);

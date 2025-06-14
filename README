@@ -1,0 +1,13 @@
+Для установки на linux использовал несколько способов. Перый:
+`sudo apt install librabbitmq-dev`
+
+Второй способ - сборка из исходников:
+```
+git clone https://github.com/alanxz/rabbitmq-c.git
+cd rabbitmq-c
+mkdir build && cd build
+cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TOOLS=OFF
+cmake --build . --target install
+```
+
+Надо будет потестить оба варианта и попробовать собрать на винде.

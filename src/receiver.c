@@ -52,36 +52,38 @@ int main() {
     amqp_rpc_reply_t res;
     amqp_envelope_t envelope;
 
-    
-    amqp_maybe_release_buffers(conn);
-
-    res = amqp_consume_message(conn, &envelope, NULL, 0);
-
-    if (AMQP_RESPONSE_NORMAL != res.reply_type) {
-      return 1;
-    }
-
-    printf("Delivery %u, exchange %.*s routingkey %.*s\n",
-           (unsigned)envelope.delivery_tag, (int)envelope.exchange.len,
-           (char *)envelope.exchange.bytes, (int)envelope.routing_key.len,
+    while (1) {
+        amqp_maybe_release_buffers(conn);
+        
+        res = amqp_consume_message(conn, &envelope, NULL, 0);
+        
+        if (AMQP_RESPONSE_NORMAL != res.reply_type) {
+            return 1;
+        }
+        
+        printf("Delivery %u, exchange %.*s routingkey %.*s\n",
+            (unsigned)envelope.delivery_tag, (int)envelope.exchange.len,
+            (char *)envelope.exchange.bytes, (int)envelope.routing_key.len,
            (char *)envelope.routing_key.bytes);
 
     if (envelope.message.properties._flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
       printf("Content-type: %.*s\n",
-             (int)envelope.message.properties.content_type.len,
-             (char *)envelope.message.properties.content_type.bytes);
+        (int)envelope.message.properties.content_type.len,
+        (char *)envelope.message.properties.content_type.bytes);
     }
     printf("----\n");
 
     printf("message: %.*s\n",
         (int)envelope.message.body.len,
         (char *)envelope.message.body.bytes);
-
-    // обязательно подтверждать или указывать в amqp_basic_consume получение без подтверждения
-    amqp_basic_ack(conn, envelope.channel, envelope.delivery_tag, 0); 
-
-    amqp_destroy_envelope(&envelope);
-
+        
+        // обязательно подтверждать amqp_basic_ack или указывать в amqp_basic_consume получение без подтверждения
+        amqp_basic_ack(conn, envelope.channel, envelope.delivery_tag, 0); 
+        
+        amqp_destroy_envelope(&envelope);
+        
+    }
+    
     amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS);
     amqp_connection_close(conn, AMQP_REPLY_SUCCESS);
     amqp_destroy_connection(conn);
